@@ -1,1 +1,447 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hasiru Mitra - Premium AI Agriculture Solution</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'forest-dark': '#0d3a20',
+                        'forest': '#14532d',
+                        'lime': '#a3e635',
+                        'glass': 'rgba(255, 255, 255, 0.1)'
+                    },
+                    fontFamily: {
+                        'satoshi': ['Satoshi', 'sans-serif'],
+                        'inter': ['Inter', 'sans-serif']
+                    },
+                    backdropBlur: {
+                        'glass': '12px'
+                    },
+                    boxShadow: {
+                        'lime': '0 0 25px 5px rgba(163, 230, 53, 0.5)',
+                        'lime-sm': '0 0 12px 2px rgba(163, 230, 53, 0.6)'
+                    }
+                }
+            }
+        }
+    </script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Satoshi:wght@700;800;900&display=swap" rel="stylesheet">
+    <style>
+        /* Custom Glassmorphism */
+        .glass-panel {
+            background: rgba(20, 83, 45, 0.3);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.18);
+        }
+        
+        /* Leaf background pattern */
+        .leaf-pattern {
+            background-image: url("data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M25,25 Q65,35 45,80 Q30,60 25,25' stroke='%23a3e635' stroke-width='0.5' stroke-opacity='0.3' fill='none'/%3E%3C/svg%3E");
+            background-size: 160px;
+        }
+        
+        /* Custom cursor */
+        .leaf-cursor {
+            width: 24px;
+            height: 24px;
+            position: fixed;
+            z-index: 10000;
+            pointer-events: none;
+            transform-origin: center;
+            transition: transform 0.1s ease-out;
+            mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23a3e635' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10Z'/%3E%3Cpath d='M2 21c0-3 1.85-5.36 5.08-6C9.5 14.52 8 16.42 8 19'/%3E%3Cpath d='M17 17c-1.2-1.76-2.35-2.9-4-3'/%3E%3C/svg%3E");
+            -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23a3e635' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10Z'/%3E%3Cpath d='M2 21c0-3 1.85-5.36 5.08-6C9.5 14.52 8 16.42 8 19'/%3E%3Cpath d='M17 17c-1.2-1.76-2.35-2.9-4-3'/%3E%3C/svg%3E");
+            background-color: #a3e635;
+        }
+        
+        /* Parallax layers */
+        .parallax-layer {
+            transition: transform 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
+        }
 
+        /* Spinning leaf animation */
+        @keyframes spin {
+            0% { transform: rotateY(0deg); }
+            100% { transform: rotateY(360deg); }
+        }
+        
+        /* Shadow drift animation */
+        @keyframes shadowDrift {
+            0% { transform: translateX(-8px); opacity: 0.6; }
+            50% { transform: translateX(8px); opacity: 0.9; }
+            100% { transform: translateX(-8px); opacity: 0.6; }
+        }
+        
+        /* Number counter animation */
+        .counter-overflow {
+            position: relative;
+            height: 1em;
+            overflow: hidden;
+        }
+        
+        .counter-digit {
+            position: absolute;
+            transition: transform 0.5s ease-in-out;
+        }
+        
+        /* Feature card tilt */
+        .tilt-card {
+            transition: all 0.4s ease-out;
+            transform-style: preserve-3d;
+            will-change: transform;
+        }
+        
+        /* Spray animation in magic section */
+        @keyframes sprayEffect {
+            0% { 
+                clip-path: polygon(0 100%, 0 85%, 5% 85%, 10% 75%, 15% 80%, 20% 70%, 25% 75%, 30% 65%, 35% 70%, 40% 60%, 45% 65%, 50% 55%, 55% 60%, 60% 50%, 65% 55%, 70% 45%, 75% 50%, 80% 40%, 85% 45%, 90% 35%, 95% 40%, 100% 30%, 100% 100%);
+            }
+            33% { 
+                clip-path: polygon(0 100%, 0 50%, 5% 50%, 10% 42%, 15% 40%, 20% 35%, 25% 30%, 30% 25%, 35% 20%, 40% 15%, 45% 12%, 50% 8%, 55% 6%, 60% 4%, 65% 3%, 70% 2%, 75% 1%, 80% 0, 85% 0, 90% 0, 95% 0, 100% 0, 100% 100%);
+            }
+            66% { 
+                clip-path: polygon(0 100%, 0 20%, 5% 15%, 10% 12%, 15% 9%, 20% 7%, 25% 5%, 30% 4%, 35% 2%, 40% 1%, 45% 0, 50% 0, 55% 0, 60% 0, 65% 0, 70% 0, 75% 0, 80% 0, 85% 0, 90% 0, 95% 0, 100% 0, 100% 100%);
+            }
+            100% { 
+                clip-path: polygon(0 100%, 0 0, 5% 0, 10% 0, 15% 0, 20% 0, 25% 0, 30% 0, 35% 0, 40% 0, 45% 0, 50% 0, 55% 0, 60% 0, 65% 0, 70% 0, 75% 0, 80% 0, 85% 0, 90% 0, 95% 0, 100% 0, 100% 100%);
+            }
+        }
+    </style>
+</head>
+<body class="bg-forest-dark text-white font-inter overflow-x-hidden relative">
+    <!-- Custom cursor -->
+    <div id="leaf-cursor" class="leaf-cursor"></div>
+    
+    <!-- Navigation -->
+    <nav class="glass-panel fixed w-full z-50 p-4 flex justify-between items-center rounded-b-xl">
+        <div class="flex items-center space-x-2">
+            <div class="w-8 h-8 rounded-full bg-lime flex items-center justify-center">
+                <i class="fas fa-leaf text-forest-dark"></i>
+            </div>
+            <span class="font-satoshi text-xl">Hasiru Mitra AI</span>
+        </div>
+        <div class="hidden md:flex space-x-8">
+            <a href="#magic" class="hover:text-lime transition">Solutions</a>
+            <a href="#features" class="hover:text-lime transition">Features</a>
+            <a href="#impact" class="hover:text-lime transition">Impact</a>
+            <a href="#farm" class="hover:text-lime transition">My Farm</a>
+        </div>
+        <button class="glass-panel px-6 py-2 rounded-full text-sm font-medium hover:shadow-lime-sm transition hover:border-lime border border-transparent">
+            Try Demo
+        </button>
+        <button class="md:hidden p-2">
+            <i class="fas fa-bars text-xl"></i>
+        </button>
+    </nav>
+
+    <!-- Progress bar -->
+    <div class="fixed top-0 left-0 h-1 bg-lime z-50" id="progress-bar"></div>
+    
+    <!-- Hero Section -->
+    <section class="min-h-screen relative overflow-hidden flex items-center justify-center" style="background: linear-gradient(180deg, #14532d 0%, #0d3a20 100%);">
+        <!-- Floating particles background -->
+        <div class="absolute inset-0 leaf-pattern opacity-10"></div>
+        
+        <!-- 3D Rotating Leaf -->
+        <div class="absolute inset-0 flex items-center justify-center">
+            <div id="leaf-container" class="relative w-60 h-60">
+                <div class="absolute inset-0 flex items-center justify-center">
+                    <div class="w-40 h-40">
+                        <div class="leaf-3d">
+                            <div class="leaf-shape"></div>
+                        </div>
+                    </div>
+                </div>
+                <div id="leaf-shadow" class="absolute bottom-10 left-1/2 transform -translate-x-1/2 w-32 h-4 bg-black rounded-full opacity-20 blur-lg"></div>
+            </div>
+        </div>
+        
+        <!-- Hero Content -->
+        <div class="z-10 max-w-4xl text-center px-6 parallax-layer" data-parallax-rate="0.2">
+            <h1 class="font-satoshi text-5xl md:text-7xl font-bold mb-4 text-white">HASIRU MITRA</h1>
+            <p class="text-xl md:text-2xl opacity-85 mb-10 max-w-2xl mx-auto">
+                AI that never says 'spray chemicals'
+            </p>
+            <button class="glass-panel py-4 px-12 rounded-full font-semibold text-lg hover:shadow-lime hover:border-lime border border-white/10 transition-all transform hover:scale-105 group relative">
+                <span class="relative z-10 text-white">Join Beta</span>
+                <span class="absolute inset-0 rounded-full bg-gradient-to-r from-lime/10 to-lime/20 opacity-0 group-hover:opacity-100 transition-opacity"></span>
+            </button>
+        </div>
+
+        <!-- Scrolling indicator -->
+        <div class="absolute bottom-10 left-1/2 transform -translate-x-1/2 flex flex-col items-center">
+            <span class="text-sm mb-2 opacity-80 animate-pulse">Explore</span>
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 animate-bounce" fill="none" viewBox="0 0 24 24" stroke="#a3e635">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3"/>
+            </svg>
+        </div>
+    </section>
+
+    <!-- The 8-Second Magic Section -->
+    <section id="magic" class="min-h-screen relative overflow-hidden pt-20" style="background: linear-gradient(180deg, #0d4226 0%, #0a2e1c 100%);">
+        <div class="container mx-auto px-6 py-20 flex flex-col md:flex-row items-center gap-16">
+            <!-- Leaf Animation -->
+            <div class="w-full md:w-1/2">
+                <div class="relative overflow-hidden rounded-3xl glass-panel border border-white/10">
+                    <div id="leaf-animation-container">
+                        <div class="leaf-comparison">
+                            <!-- Diseased leaf + spray effect -->
+                            <div class="diseased-leaf"></div>
+                            <div class="spray-effect"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Magic Process -->
+            <div class="w-full md:w-1/2">
+                <h2 class="font-satoshi text-3xl md:text-4xl font-bold mb-6">The 8-Second Magic</h2>
+                <p class="opacity-80 mb-10 max-w-xl">
+                    At Hasiru Mitra, advanced AI delivers a complete diagnosis and organic solution plan in just 8 seconds.
+                </p>
+                
+                <div class="flex flex-col space-y-8">
+                    <div class="flex items-start space-x-6">
+                        <div class="bg-lime/10 h-12 w-12 rounded-full flex items-center justify-center mt-1">
+                            <span class="text-lime font-bold">1</span>
+                        </div>
+                        <div>
+                            <h3 class="font-satoshi text-lg font-semibold">Leaf Analysis</h3>
+                            <p class="opacity-80 mt-2">Scan any plant leaf with camera disease identification</p>
+                        </div>
+                    </div>
+                    
+                    <div class="flex items-start space-x-6">
+                        <div class="bg-lime/10 h-12 w-12 rounded-full flex items-center justify-center mt-1">
+                            <span class="text-lime font-bold">2</span>
+                        </div>
+                        <div>
+                            <h3 class="font-satoshi text-lg font-semibold">Soil & Context Check</h3>
+                            <p class="opacity-80 mt-2">Integrates soil data and local weather conditions</p>
+                        </div>
+                    </div>
+                    
+                    <div class="flex items-start space-x-6">
+                        <div class="bg-lime/10 h-12 w-12 rounded-full flex items-center justify-center mt-1">
+                            <span class="text-lime font-bold">3</span>
+                        </div>
+                        <div class="relative">
+                            <h3 class="font-satoshi text-lg font-semibold">Organic Solution</h3>
+                            <p class="opacity-80 mt-2">Recipe precision-crafted with no chemical alternatives</p>
+                            <div id="recipe-display" class="glass-panel mt-5 p-6 rounded-xl border border-lime/30">
+                                <div class="flex items-center justify-between">
+                                    <div>
+                                        <div>🌿 15ml neem oil</div>
+                                        <div>💧 10L of water</div>
+                                        <div>🔬 Soil-test booked</div>
+                                    </div>
+                                    <div class="timer-circle">
+                                        <div class="timer-animation"></div>
+                                        <span class="timer-text text-lime">8s</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section id="features" class="py-20" style="background: linear-gradient(180deg, #0a2e1c 0%, #082416 100%);">
+        <div class="container mx-auto px-6">
+            <div class="text-center max-w-3xl mx-auto mb-20">
+                <h2 class="font-satoshi text-4xl font-bold mb-6">Integrated AI Features</h2>
+                <p class="text-xl opacity-85">
+                    All-in-one solution designed for modern agricultural challenges
+                </p>
+            </div>
+            
+            <!-- Features Grid -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                <!-- Card 1 -->
+                <div class="tilt-card glass-panel rounded-3xl overflow-hidden p-8 border border-white/10 hover:border-lime transition-colors">
+                    <div class="bg-lime/10 w-16 h-16 rounded-lg flex items-center justify-center mb-6">
+                        <i class="fas fa-language text-2xl text-lime"></i>
+                    </div>
+                    <h3 class="font-satoshi text-2xl font-bold mb-4">Voice & Chat</h3>
+                    <p class="opacity-80 mb-6">
+                        Natural conversations in Kannada, Hindi, and English using voice or text commands
+                    </p>
+                    <div class="bg-glass rounded-xl p-4">
+                        <div class="flex space-x-3 items-start">
+                            <div class="bg-lime h-2 w-2 rounded-full mt-2"></div>
+                            <p class="text-sm font-medium opacity-90">"Hello Mitra, what pests are affecting my tomatoes?"</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Card 2 -->
+                <div class="tilt-card glass-panel rounded-3xl overflow-hidden p-8 border border-white/10 hover:border-lime transition-colors">
+                    <div class="bg-lime/10 w-16 h-16 rounded-lg flex items-center justify-center mb-6">
+                        <i class="fas fa-camera-alt text-2xl text-lime"></i>
+                    </div>
+                    <h3 class="font-satoshi text-2xl font-bold mb-4">Camera Scan</h3>
+                    <p class="opacity-80 mb-6">
+                        Instant pest and disease identification through smartphone camera scans
+                    </p>
+                    <div class="flex items-center space-x-4">
+                        <div class="scan-example rounded-lg bg-green-900/30 p-4">
+                            <div class="w-16 h-16 flex items-center justify-center mx-auto">
+                                <div class="p-2 rounded-full bg-lime/20 animate-pulse">
+                                    <div class="w-8 h-8 bg-lime/40 rounded-full"></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="flex-1">
+                            <div class="px-4 py-2 rounded-lg bg-green-900/30 text-sm">Identified: Aphid infestation</div>
+                            <div class="mt-2 px-4 py-2 rounded-lg bg-lime/10 text-sm">Chance of match: 92%</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Card 3 -->
+                <div class="tilt-card glass-panel rounded-3xl overflow-hidden p-8 border border-white/10 hover:border-lime transition-colors">
+                    <div class="bg-lime/10 w-16 h-16 rounded-lg flex items-center justify-center mb-6">
+                        <i class="fas fa-globe-asia text-2xl text-lime"></i>
+                    </div>
+                    <h3 class="font-satoshi text-2xl font-bold mb-4">Export Certificates</h3>
+                    <p class="opacity-80 mb-6">
+                        Generate standards-compliant QR codes for EU/US organic export certification
+                    </p>
+                    
+                    <div class="mb-6">
+                        <div class="qr-code flex items-center justify-center p-4 bg-white rounded-xl">
+                            <div class="w-32 h-32 bg-green-900/20 rounded-lg flex items-center justify-center">
+                                <i class="fas fa-qrcode text-5xl text-lime"></i>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Price Ticker -->
+                    <div class="bg-glass rounded-xl p-4 border border-green-700/30 overflow-hidden">
+                        <div class="flex items-center justify-between">
+                            <span class="opacity-90">EU/US Certification Cost:</span>
+                            <span id="ondc-price" class="font-satoshi text-lime font-bold animate-pulse">₹148.00</span>
+                        </div>
+                        <div class="text-xs opacity-60 mt-2 text-right">ONDC market price</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="py-10 glass-panel border-t border-white/10">
+        <div class="container mx-auto px-6">
+            <div class="flex flex-col md:flex-row justify-between items-center">
+                <div class="flex items-center space-x-3 mb-6 md:mb-0">
+                    <div class="w-12 h-12 rounded-lg bg-lime flex items-center justify-center">
+                        <i class="fas fa-leaf text-xl text-forest-dark"></i>
+                    </div>
+                    <div>
+                        <h3 class="font-satoshi text-xl">Hasiru Mitra</h3>
+                        <p class="text-xs opacity-70">Built by AgriGenius Solutions</p>
+                    </div>
+                </div>
+                
+                <div class="flex space-x-6">
+                    <a href="#" class="text-xl hover:text-lime transition"><i class="fab fa-linkedin"></i></a>
+                    <a href="#" class="text-xl hover:text-lime transition"><i class="fab fa-instagram"></i></a>
+                    <a href="#" class="text-xl hover:text-lime transition"><i class="fab fa-twitter"></i></a>
+                </div>
+                
+                <p class="mt-6 md:mt-0 text-sm opacity-70">
+                    &copy; 2023 Hasiru Mitra. All rights reserved.
+                </p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Wait for page to load
+        document.addEventListener('DOMContentLoaded', function() {
+            // Set up custom cursor
+            const cursor = document.getElementById('leaf-cursor');
+            
+            document.addEventListener('mousemove', e => {
+                cursor.style.transform = `translate3d(calc(${e.clientX}px - 50%), calc(${e.clientY}px - 50%), 0)`;
+                // Add subtle rotation
+                const rotation = e.movementX * 0.5;
+                cursor.style.transform += ` rotate(${rotation}deg)`;
+            });
+            
+            document.addEventListener('mousedown', () => {
+                cursor.style.transform += ' scale(0.7)';
+            });
+            
+            document.addEventListener('mouseup', () => {
+                cursor.style.transform = cursor.style.transform.replace(' scale(0.7)', '');
+            });
+            
+            // Set up progress bar
+            const progressBar = document.getElementById('progress-bar');
+            
+            window.addEventListener('scroll', () => {
+                const scrollableHeight = document.documentElement.scrollHeight - window.innerHeight;
+                const scrolled = window.scrollY;
+                const progress = (scrolled / scrollableHeight) * 100;
+                progressBar.style.width = `${progress}%`;
+            });
+            
+            // Set up background leaf shadow animation
+            const leafShadow = document.getElementById('leaf-shadow');
+            leafShadow.style.animation = "shadowDrift 4s ease-in-out infinite";
+            
+            // Set up rotating leaf animation
+            const rotatingLeaf = document.querySelector('.leaf-shape');
+            rotatingLeaf.style.animation = "spin 8s linear infinite";
+            
+            // Update counter values every 5 seconds
+            setInterval(() => {
+                // Recipe counter
+                const recipesCounter = document.getElementById('organic-recipes');
+                recipesCounter.textContent = (parseInt(recipesCounter.textContent) + Math.floor(Math.random() * 8)).toString();
+                
+                // Carbon prevented counter
+                const carbonCounter = document.getElementById('carbon-prevented');
+                carbonCounter.textContent = (parseInt(carbonCounter.textContent) + Math.floor(Math.random() * 25)).toString();
+            }, 5000);
+            
+            // Set up scroll animations
+            const parallaxElements = document.querySelectorAll('.parallax-layer');
+            window.addEventListener('scroll', () => {
+                const scrollY = window.scrollY;
+                
+                parallaxElements.forEach(el => {
+                    const rate = parseFloat(el.getAttribute('data-parallax-rate') || 0.3);
+                    const movement = scrollY * rate / 10;
+                    el.style.transform = `translateY(${movement}px)`;
+                });
+            });
+            
+            // Price ticker animation
+            const priceElement = document.getElementById('ondc-price');
+            setInterval(() => {
+                const fluctuation = (Math.random() * 2 - 1) * 0.5;
+                let currentPrice = parseFloat(priceElement.textContent.substring(1));
+                currentPrice = Math.max(147, Math.min(152, currentPrice + fluctuation));
+                priceElement.textContent = '₹' + currentPrice.toFixed(2);
+                priceElement.style.animation = 'none';
+                void priceElement.offsetWidth; // Trigger reflow
+                priceElement.style.animation = 'pulse 0.8s ease';
+            }, 8000);
+        });
+    </script>
+</body>
+</html>
