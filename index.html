@@ -1,363 +1,804 @@
-<!doctype html>
-<!--
-  Hasiru Mitra — Single-page premium dashboard prototype
-  Single-file HTML (static prototype). Designed as a production-ready frontend template
-  Notes: This is a static, single-file prototype that matches the UI/UX spec you provided.
-  Tech hints for integration: Convert to Next.js + Tailwind v4 components, use Framer Motion for advanced motion,
-  and move heavy logic to edge functions. Keep images / videos in CDN for <2s load on 4G.
--->
+<!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Hasiru Mitra • Dashboard</title>
-  <meta name="description" content="Hasiru Mitra — AI for organic farmers. Premium single-page dashboard prototype." />
-  <!-- Tailwind Play CDN (works for prototyping). Replace with Tailwind v4 build in production -->
-  <script src="https://cdn.tailwindcss.com"></script>
-  <script>
-    // Tailwind config for this page (extend colors/fonts)
-    tailwind.config = {
-      theme: {
-        extend: {
-          colors: {
-            forest: '#14532d',
-            lime: '#a3e635'
-          },
-          fontFamily: {
-            satoshi: ['Satoshi', 'ui-sans-serif', 'system-ui'],
-            inter: ['Inter', 'ui-sans-serif', 'system-ui']
-          }
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hasiru Mitra AI - Organic Farming Assistant</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@700;800&display=swap" rel="stylesheet">
+    <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
+    <style>
+        :root {
+            --primary-green: #16a34a;
+            --secondary-green: #22c55e;
+            --accent-green: #86efac;
+            --dark-green: #15803d;
+            --light-green: #f0fdf4;
+            --soil-brown: #8d6e63;
+            --sky-blue: #dbeafe;
         }
-      }
-    }
-  </script>
-  <!-- Fonts (for prototype) -->
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
-  <!-- Minimal reset + custom styles -->
-  <style>
-    :root{--forest:#14532d;--lime:#a3e635;--glass-bg: rgba(255,255,255,0.06);} 
-    html,body,#app{height:100%;}
-    body{font-family:Inter, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial; background:linear-gradient(180deg,var(--forest), #0f3b24); color: #fff;}
-    /* glassmorphism helper */
-    .glass{background: linear-gradient(180deg, rgba(255,255,255,0.03), rgba(255,255,255,0.02)); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); border-radius: 14px;}
-    .glass-strong{background: linear-gradient(180deg, rgba(255,255,255,0.04), rgba(255,255,255,0.02)); backdrop-filter: blur(12px);}
-    .lime-border{border: 1px solid rgba(163,230,53,0.06);} /* subtle default */
-    .hover-lime:focus, .hover-lime:hover{box-shadow: 0 8px 30px rgba(163,230,53,0.12); transform: translateY(-3px) scale(1.02);} 
-    /* rotating 3D leaf */
-    .leaf-3d{transform-style: preserve-3d; will-change: transform;}
-    @keyframes leaf-rotate { to { transform: rotateY(360deg);} }
-    .rotate-slow { animation: leaf-rotate 8s linear infinite; }
-    /* micro shadow drift */
-    @keyframes shadow-drift { 0% { transform: translateX(-2px);} 50% { transform: translateX(2px);} 100% { transform: translateX(-2px);} }
-    .leaf-shadow { animation: shadow-drift 8s ease-in-out infinite; filter: drop-shadow(0 10px 18px rgba(163,230,53,0.08)); }
-    /* card hover glow */
-    .card-hover:hover { box-shadow: 0 8px 30px rgba(163,230,53,0.14); transform: scale(1.02); }
-    /* soil health ring */
-    .ring-traffic { width: 220px; height: 220px; border-radius: 9999px; display:grid; place-items:center; }
-    /* small helpers */
-    .glass-btn { background: linear-gradient(90deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01)); border-radius: 10px; padding: 10px 16px; }
-    /* accessibility focus */
-    :focus {outline: 3px solid rgba(163,230,53,0.18); outline-offset: 2px;}
-    /* responsive tweaks for prototype */
-    @media (max-width:768px){ .desktop-only{display:none;} }
-  </style>
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            scroll-behavior: smooth;
+            background-color: #f9fafb;
+        }
+        
+        h1, h2, h3 {
+            font-family: 'Poppins', sans-serif;
+        }
+        
+        .language-tab {
+            transition: all 0.3s ease;
+            position: relative;
+        }
+        
+        .language-tab.active {
+            background-color: var(--primary-green);
+            color: white;
+            font-weight: 600;
+        }
+        
+        .testimonial-card {
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        
+        .testimonial-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+        }
+        
+        .feature-card {
+            transition: all 0.3s ease;
+            border: 1px solid #e5e7eb;
+        }
+        
+        .feature-card:hover {
+            transform: translateY(-5px);
+            border-color: var(--secondary-green);
+            box-shadow: 0 5px 15px rgba(34, 197, 94, 0.1);
+        }
+        
+        .hero-pattern {
+            background-image: url("data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M11 18c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm48 25c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm-43-7c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm63 31c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM34 90c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm56-76c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM12 86c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm28-65c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm23-11c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-6 60c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm29 22c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zM32 63c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm57-13c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-9-21c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM60 91c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM35 41c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM12 60c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2z' fill='%2322c55e' fill-opacity='0.1' fill-rule='evenodd'/%3E%3C/svg%3E");
+        }
+        
+        .mobile-menu {
+            display: none;
+        }
+        
+        .mobile-menu.active {
+            display: block;
+        }
+        
+        .chat-bubble {
+            animation: float 3s ease-in-out infinite;
+        }
+        
+        @keyframes float {
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+            100% { transform: translateY(0px); }
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary-green), var(--dark-green));
+            transition: all 0.3s ease;
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 7px 15px rgba(22, 163, 74, 0.3);
+        }
+        
+        .btn-secondary {
+            border: 2px solid var(--secondary-green);
+            color: var(--secondary-green);
+            transition: all 0.3s ease;
+        }
+        
+        .btn-secondary:hover {
+            background-color: var(--secondary-green);
+            color: white;
+            transform: translateY(-3px);
+        }
+        
+        .section-title {
+            position: relative;
+            display: inline-block;
+            margin-bottom: 1rem;
+        }
+        
+        .section-title::after {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            left: 0;
+            width: 60px;
+            height: 4px;
+            background: var(--secondary-green);
+            border-radius: 2px;
+        }
+        
+        .tech-card {
+            transition: all 0.3s ease;
+        }
+        
+        .tech-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.08);
+        }
+        
+        .roadmap-timeline {
+            position: relative;
+            padding-left: 30px;
+        }
+        
+        .roadmap-timeline::before {
+            content: '';
+            position: absolute;
+            left: 15px;
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            background: var(--secondary-green);
+        }
+        
+        .roadmap-point {
+            position: relative;
+            margin-bottom: 40px;
+        }
+        
+        .roadmap-point::before {
+            content: '';
+            position: absolute;
+            left: -35px;
+            top: 8px;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: var(--secondary-green);
+            border: 4px solid white;
+            box-shadow: 0 0 0 2px var(--secondary-green);
+        }
+        
+        .roadmap-point:last-child {
+            margin-bottom: 0;
+        }
+        
+        .testimonial-icon {
+            width: 50px;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            background: var(--light-green);
+            color: var(--secondary-green);
+            font-size: 1.2rem;
+        }
+        
+        .cta-section {
+            background: linear-gradient(135deg, var(--primary-green) 0%, var(--dark-green) 100%);
+        }
+        
+        .footer-link:hover {
+            color: white;
+            padding-left: 5px;
+            transition: all 0.3s ease;
+        }
+        
+        .floating-leaf {
+            position: absolute;
+            opacity: 0.1;
+            z-index: -1;
+        }
+        
+        .leaf-1 {
+            top: 10%;
+            left: 5%;
+            font-size: 5rem;
+            animation: float 8s ease-in-out infinite;
+        }
+        
+        .leaf-2 {
+            bottom: 15%;
+            right: 7%;
+            font-size: 4rem;
+            animation: float 6s ease-in-out infinite 1s;
+        }
+        
+        .leaf-3 {
+            top: 40%;
+            right: 15%;
+            font-size: 3rem;
+            animation: float 7s ease-in-out infinite 2s;
+        }
+        
+        .feature-icon {
+            width: 60px;
+            height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 16px;
+            background: var(--light-green);
+            color: var(--primary-green);
+            font-size: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+        
+        .tech-icon {
+            width: 56px;
+            height: 56px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 12px;
+            background: var(--light-green);
+            color: var(--primary-green);
+            font-size: 1.25rem;
+            margin-bottom: 1.25rem;
+        }
+        
+        .demo-card {
+            transition: all 0.3s ease;
+        }
+        
+        .demo-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1);
+        }
+        
+        .roadmap-card {
+            position: relative;
+            overflow: hidden;
+            border-left: 4px solid var(--primary-green);
+        }
+        
+        .roadmap-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 4px;
+            height: 100%;
+            background: var(--primary-green);
+        }
+        
+        .timeline-marker {
+            position: absolute;
+            left: -12px;
+            top: 20px;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background: var(--primary-green);
+            border: 4px solid white;
+            box-shadow: 0 0 0 2px var(--primary-green);
+        }
+    </style>
 </head>
-<body>
-  <div id="app" class="min-h-screen flex flex-col">
-    <!-- SECTION 1: HERO -->
-    <header class="w-full h-screen flex items-center justify-center relative overflow-hidden px-6">
-      <div class="absolute inset-0" aria-hidden="true" style="background: linear-gradient(180deg, rgba(20,83,45,0.92), rgba(8,33,20,0.95));"></div>
-      <div class="max-w-6xl w-full relative z-10 grid grid-cols-12 gap-6 items-center">
-        <div class="col-span-7 lg:col-span-8">
-          <h1 class="text-white font-satoshi font-bold text-[48px] md:text-[64px] leading-tight">Hasiru Mitra</h1>
-          <p class="mt-4 text-white/85 text-lg md:text-xl max-w-xl">AI that never says ‘spray chemicals’</p>
+<body class="bg-gray-50">
+    <script>
+        // Scroll animation functionality
+        document.addEventListener('DOMContentLoaded', function() {
+            const observerOptions = {
+                threshold: 0.1,
+                rootMargin: '0px 0px -50px 0px'
+            };
 
-          <div class="mt-8 flex items-center gap-4">
-            <button id="joinBetaTop" class="glass-btn px-6 py-3 rounded-lg font-semibold hover-lime transition-all" aria-label="Join Beta">
-              <span class="inline-flex items-center gap-3">
-                <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M5 12h14" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-                <span class="text-white">Join Beta</span>
-              </span>
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('animate-in');
+                        observer.unobserve(entry.target);
+                    }
+                });
+            }, observerOptions);
+
+            // Observe all sections and cards
+            document.querySelectorAll('section, .feature-card, .demo-card, .tech-card, .roadmap-point, .testimonial-card').forEach(el => {
+                observer.observe(el);
+            });
+
+            // Add animation classes to CSS
+            const style = document.createElement('style');
+            style.textContent = `
+                .animate-in {
+                    animation: fadeInUp 0.6s ease-out forwards;
+                }
+                
+                @keyframes fadeInUp {
+                    from {
+                        opacity: 0;
+                        transform: translateY(30px);
+                    }
+                    to {
+                        opacity: 1;
+                        transform: translateY(0);
+                    }
+                }
+                
+                /* Initial hidden state for animated elements */
+                section, .feature-card, .demo-card, .tech-card, .roadmap-point, .testimonial-card {
+                    opacity: 0;
+                }
+                
+                /* Hero section should be visible by default */
+                .hero-pattern {
+                    opacity: 1;
+                }
+            `;
+            document.head.appendChild(style);
+        });
+    </script>
+</body>
+</html>
+    <!-- Floating decorative elements -->
+    <div class="floating-leaf leaf-1">
+        <i class="fas fa-leaf text-green-500"></i>
+    </div>
+    <div class="floating-leaf leaf-2">
+        <i class="fas fa-leaf text-green-500"></i>
+    </div>
+    <div class="floating-leaf leaf-3">
+        <i class="fas fa-leaf text-green-500"></i>
+    </div>
+
+    <!-- Navigation -->
+    <nav class="bg-white shadow-sm sticky top-0 z-50">
+        <div class="container mx-auto px-4 py-4 flex justify-between items-center">
+            <div class="flex items-center space-x-3">
+                <div class="bg-green-600 p-2 rounded-lg">
+                    <i class="fas fa-leaf text-white text-xl"></i>
+                </div>
+                <span class="text-xl font-bold text-green-800">Hasiru Mitra AI</span>
+            </div>
+            <div class="hidden md:flex space-x-8">
+                <a href="#features" class="text-gray-700 hover:text-green-600 font-medium">Features</a>
+                <a href="#technology" class="text-gray-700 hover:text-green-600 font-medium">Technology</a>
+                <a href="#roadmap" class="text-gray-700 hover:text-green-600 font-medium">Roadmap</a>
+                <a href="#testimonials" class="text-gray-700 hover:text-green-600 font-medium">Testimonials</a>
+            </div>
+            <div class="hidden md:block">
+                <button class="bg-green-600 hover:bg-green-700 text-white px-5 py-2 rounded-full font-medium shadow-md transition-all">
+                    Try Now
+                </button>
+            </div>
+            <button id="mobile-menu-button" class="md:hidden text-gray-700">
+                <i class="fas fa-bars text-2xl"></i>
             </button>
-            <div class="text-sm text-white/70">Limited 500 slots • <span id="slotCount" class="text-lime font-medium">500</span> remaining</div>
-          </div>
-
-          <p class="mt-6 text-sm text-white/60">Premium dashboard • Glassmorphism • 60fps micro-motion • Accessibility-minded</p>
         </div>
-
-        <!-- 3D leaf visual -->
-        <div class="col-span-5 lg:col-span-4 flex items-center justify-center">
-          <div class="leaf-3d rotate-slow" style="width:280px; height:280px; perspective:1200px;">
-            <!-- simplified 3D leaf using layered SVGs for depth -->
-            <svg viewBox="0 0 200 200" class="w-full h-full" aria-hidden="true">
-              <defs>
-                <linearGradient id="gLime" x1="0" x2="1"><stop offset="0%" stop-color="#bff36a"/><stop offset="100%" stop-color="#79c430"/></linearGradient>
-              </defs>
-              <g transform="translate(100,100)" class="leaf-shadow">
-                <path d="M-70 10 C -30 -70, 70 -70, 100 -10 C 70 30, 10 70, -40 60 C -80 55, -90 30, -70 10 Z" fill="url(#gLime)" transform="rotate(8) translateZ(20px)"/>
-                <path d="M-70 10 C -30 -70, 70 -70, 100 -10 C 70 30, 10 70, -40 60 C -80 55, -90 30, -70 10 Z" fill="rgba(0,0,0,0.06)" transform="scale(0.98) translate(6,6) rotate(8)"/>
-              </g>
-            </svg>
-          </div>
-        </div>
-      </div>
-
-      <!-- subtle parallax shapes -->
-      <div class="absolute right-8 bottom-12 opacity-20 transform-gpu translate-z-0">
-        <div class="w-60 h-36 rounded-2xl glass"></div>
-      </div>
-    </header>
-
-    <!-- SECTION 2: THE 8-SECOND MAGIC -->
-    <section class="w-full py-12 px-6" style="background: linear-gradient(180deg, rgba(0,0,0,0.06), transparent);">
-      <div class="max-w-6xl mx-auto grid grid-cols-12 gap-6 items-center">
-        <div class="col-span-12 md:col-span-6">
-          <div class="glass p-2 rounded-xl overflow-hidden">
-            <!-- placeholder for 3s macro video -->
-            <video id="chilliMacro" muted playsinline preload="metadata" class="w-full h-64 object-cover rounded-lg">
-              <source src="https://cdn.example.com/videos/chilli-macro-3s.mp4" type="video/mp4">
-              <!-- fallback image -->
-              <img src="https://cdn.example.com/images/chilli-poster.jpg" alt="Chilli leaf" />
-            </video>
-          </div>
-        </div>
-        <div class="col-span-12 md:col-span-6">
-          <div class="glass p-6 rounded-xl flex flex-col gap-4">
-            <div class="text-sm text-white/70">Diagnosis & Home Remedy</div>
-            <div id="magicArea" class="text-xl md:text-2xl font-semibold text-lime">—</div>
-            <div class="mt-4 flex items-center gap-3">
-              <div id="countdown" class="text-3xl font-bold">8</div>
-              <div class="text-sm text-white/60">seconds to prescription</div>
+        
+        <!-- Mobile Menu -->
+        <div id="mobile-menu" class="mobile-menu bg-white py-4 px-4 shadow-lg">
+            <div class="flex flex-col space-y-4">
+                <a href="#features" class="text-gray-700 hover:text-green-600 font-medium">Features</a>
+                <a href="#technology" class="text-gray-700 hover:text-green-600 font-medium">Technology</a>
+                <a href="#roadmap" class="text-gray-700 hover:text-green-600 font-medium">Roadmap</a>
+                <a href="#testimonials" class="text-gray-700 hover:text-green-600 font-medium">Testimonials</a>
+                <button class="bg-green-600 hover:bg-green-700 text-white px-5 py-2 rounded-full font-medium shadow-md transition-all w-full">
+                    Try Now
+                </button>
             </div>
-            <div class="mt-2 text-sm text-white/50">Audio: muted. Auto-play once.</div>
-          </div>
         </div>
-      </div>
-    </section>
+    </nav>
 
-    <!-- SECTION 3: FEATURES -->
-    <section class="w-full py-10 px-6">
-      <div class="max-w-6xl mx-auto">
-        <h3 class="text-xl font-semibold mb-6">Features</h3>
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          <!-- Card 1 -->
-          <div class="glass p-6 rounded-xl lime-border hover-lime card-hover" role="article" aria-label="Voice and Chat">
-            <div class="flex items-center justify-between">
-              <div>
-                <h4 class="font-semibold">Voice & Chat</h4>
-                <p class="text-sm text-white/70">Kannada • Hindi • English</p>
-              </div>
-              <div class="w-12 h-12 rounded-lg glass flex items-center justify-center">🎙️</div>
+    <!-- Hero Section -->
+    <section class="hero-pattern py-16 md:py-24 relative overflow-hidden">
+        <div class="container mx-auto px-4 flex flex-col md:flex-row items-center">
+            <div class="md:w-1/2 mb-12 md:mb-0 relative z-10">
+                <div class="flex space-x-2 mb-6">
+                    <button class="language-tab active px-4 py-2 font-medium text-green-800 rounded-lg">Kannada</button>
+                    <button class="language-tab px-4 py-2 font-medium text-green-800 rounded-lg">Hindi</button>
+                    <button class="language-tab px-4 py-2 font-medium text-green-800 rounded-lg">English</button>
+                </div>
+                <h1 class="text-4xl md:text-5xl lg:text-6xl font-extrabold text-green-900 mb-4 leading-tight">
+                    <span class="block mb-2">ಹಸಿರು ಮಿತ್ರ</span>
+                    <span class="block text-green-700">हरा मित्र</span>
+                </h1>
+                <h2 class="text-2xl md:text-3xl font-bold text-gray-800 mb-6">"Your Green Friend – Organic AI, Pure by Design"</h2>
+                <p class="text-gray-700 mb-8 text-lg max-w-2xl">The world's first AI agronomist that promises zero synthetic advice—ever. Speak in Kannada, Hindi, or English and get instant, certified-organic solutions.</p>
+                <div class="flex flex-wrap gap-4">
+                    <button class="btn-primary text-white px-8 py-4 rounded-full font-bold shadow-lg">
+                        Try Now
+                    </button>
+                    <button class="btn-secondary px-8 py-4 rounded-full font-bold">
+                        <i class="fas fa-play-circle mr-2"></i> Watch Demo
+                    </button>
+                </div>
+                <p class="text-sm text-gray-600 mt-6">Developed by AgriGenius Solutions</p>
             </div>
-          </div>
-
-          <!-- Card 2 -->
-          <div class="glass p-6 rounded-xl lime-border hover-lime card-hover" role="article" aria-label="Camera Scan">
-            <div class="flex items-center justify-between">
-              <div>
-                <h4 class="font-semibold">Camera Scan</h4>
-                <p class="text-sm text-white/70">Instant pest & deficiency ID</p>
-              </div>
-              <div class="w-12 h-12 rounded-lg glass flex items-center justify-center">📷</div>
+            <div class="md:w-1/2 flex justify-center relative z-10">
+                <div class="relative">
+                    <div class="absolute -inset-4 bg-green-100 rounded-2xl opacity-75 blur"></div>
+                    <div class="relative bg-white p-6 rounded-2xl shadow-xl max-w-md w-full">
+                        <div class="flex items-center space-x-2 mb-4">
+                            <div class="h-3 w-3 rounded-full bg-red-500"></div>
+                            <div class="h-3 w-3 rounded-full bg-yellow-500"></div>
+                            <div class="h-3 w-3 rounded-full bg-green-500"></div>
+                        </div>
+                        <div class="flex items-start space-x-3 mb-4">
+                            <div class="h-12 w-12 rounded-full bg-green-100 flex items-center justify-center chat-bubble">
+                                <i class="fas fa-robot text-green-600 text-xl"></i>
+                            </div>
+                            <div class="bg-green-50 p-4 rounded-2xl rounded-tl-none max-w-xs">
+                                <p class="text-gray-800">ನಮಸ್ಕಾರ! ನಾನು ಹಸಿರು ಮಿತ್ರ. ನಿಮ್ಮ ಸಾವಯವ ಕೃಷಿ ಪ್ರಶ್ನೆಗಳಿಗೆ ನಾನು ಸಹಾಯ ಮಾಡಲು ಇಲ್ಲಿದ್ದೇನೆ.</p>
+                            </div>
+                        </div>
+                        <div class="flex items-start space-x-3 justify-end mb-4">
+                            <div class="bg-blue-50 p-4 rounded-2xl rounded-tr-none max-w-xs">
+                                <p class="text-gray-800">ನನ್ನ ಟೊಮೇಟೊ ಗಿಡಗಳ ಮೇಲೆ ಕೀಟಗಳು ಬಂದಿವೆ. ಸಾವಯವ ಪರಿಹಾರವೇನು?</p>
+                            </div>
+                            <div class="h-12 w-12 rounded-full bg-blue-100 flex items-center justify-center">
+                                <i class="fas fa-user text-blue-600 text-xl"></i>
+                            </div>
+                        </div>
+                        <div class="mt-4 flex items-center bg-gray-50 p-4 rounded-2xl">
+                            <i class="fas fa-microphone text-green-600 mr-3"></i>
+                            <p class="text-gray-500">Press to speak in your language...</p>
+                        </div>
+                    </div>
+                </div>
             </div>
-          </div>
+        </div>
+    </section>
 
-          <!-- Card 3 -->
-          <div class="glass p-6 rounded-xl lime-border hover-lime card-hover" role="article" aria-label="Export QR">
-            <div class="flex items-center justify-between">
-              <div>
-                <h4 class="font-semibold">Export QR</h4>
-                <p class="text-sm text-white/70">EU / US ready • Traceability</p>
-              </div>
-              <div class="w-12 h-12 rounded-lg glass flex items-center justify-center">🔗</div>
+    <!-- Features Section -->
+    <section id="features" class="py-16 bg-white">
+        <div class="container mx-auto px-4">
+            <div class="text-center mb-16">
+                <h2 class="section-title text-3xl md:text-4xl font-bold text-green-800">AI That Understands Your Language</h2>
+                <p class="text-xl text-gray-600 max-w-3xl mx-auto mt-4">Revolutionary technology designed specifically for Indian farmers</p>
             </div>
-            <div class="mt-4 text-sm text-lime">ONDC price: <span id="ondcTicker" class="font-mono">₹ —</span></div>
-          </div>
+            <div class="grid md:grid-cols-3 gap-8">
+                <div class="feature-card bg-white p-8 rounded-2xl shadow-sm hover:shadow-md transition-all">
+                    <div class="feature-icon">
+                        <i class="fas fa-seedling"></i>
+                    </div>
+                    <h3 class="text-xl font-bold text-green-800 mb-4">Never Chemical</h3>
+                    <p class="text-gray-600">Every recommendation checked against USDA-NOP, EU 834/2008 & NPOP positive lists.</p>
+                </div>
+                <div class="feature-card bg-white p-8 rounded-2xl shadow-sm hover:shadow-md transition-all">
+                    <div class="feature-icon">
+                        <i class="fas fa-comment-dots"></i>
+                    </div>
+                    <h3 class="text-xl font-bold text-green-800 mb-4">Speak Naturally</h3>
+                    <p class="text-gray-600">Voice-first Kannada, Hindi & English. No typing, no jargon.</p>
+                </div>
+                <div class="feature-card bg-white p-8 rounded-2xl shadow-sm hover:shadow-md transition-all">
+                    <div class="feature-icon">
+                        <i class="fas fa-hands-helping"></i>
+                    </div>
+                    <h3 class="text-xl font-bold text-green-800 mb-4">Agentic Help</h3>
+                    <p class="text-gray-600">Book soil-test van, order bio-inputs, auto-generate certification QR—inside chat.</p>
+                </div>
+            </div>
         </div>
-      </div>
     </section>
 
-    <!-- SECTION 4: IMPACT COUNTERS -->
-    <section class="w-full py-10 px-6">
-      <div class="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-6">
-        <div class="glass p-6 rounded-xl text-center">
-          <div class="text-sm text-white/70">Organic recipes served today</div>
-          <div id="counterRecipes" class="text-3xl font-bold text-lime">0</div>
+    <!-- Demo Section -->
+    <section class="py-16 bg-green-50">
+        <div class="container mx-auto px-4">
+            <div class="text-center mb-16">
+                <h2 class="section-title text-3xl md:text-4xl font-bold text-green-800">See It In Action</h2>
+                <p class="text-xl text-gray-700 max-w-3xl mx-auto mt-4">Watch how farmers interact with HASIRU MITRA in their native language and get instant, organic solutions.</p>
+            </div>
+            <div class="grid md:grid-cols-3 gap-8 mb-16">
+                <div class="demo-card text-center bg-white p-8 rounded-2xl shadow-sm hover:shadow-md transition-all">
+                    <div class="h-20 w-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
+                        <i class="fas fa-language text-green-600 text-3xl"></i>
+                    </div>
+                    <h3 class="text-xl font-bold text-green-800 mb-3">Voice recognition in 3 languages</h3>
+                    <p class="text-gray-600">Speak naturally in Kannada, Hindi or English</p>
+                </div>
+                <div class="demo-card text-center bg-white p-8 rounded-2xl shadow-sm hover:shadow-md transition-all">
+                    <div class="h-20 w-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
+                        <i class="fas fa-leaf text-green-600 text-3xl"></i>
+                    </div>
+                    <h3 class="text-xl font-bold text-green-800 mb-3">Instant organic recommendations</h3>
+                    <p class="text-gray-600">Get solutions tailored to your specific crop issues</p>
+                </div>
+                <div class="demo-card text-center bg-white p-8 rounded-2xl shadow-sm hover:shadow-md transition-all">
+                    <div class="h-20 w-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
+                        <i class="fas fa-certificate text-green-600 text-3xl"></i>
+                    </div>
+                    <h3 class="text-xl font-bold text-green-800 mb-3">Certified compliance checking</h3>
+                    <p class="text-gray-600">Verified against international organic standards</p>
+                </div>
+            </div>
+            <div class="mt-12 flex justify-center">
+                <div class="relative w-full max-w-4xl rounded-2xl overflow-hidden shadow-xl">
+                    <div class="aspect-w-16 aspect-h-9 bg-gradient-to-r from-green-400 to-green-600 flex items-center justify-center">
+                        <i class="fas fa-play-circle text-white text-6xl opacity-90 cursor-pointer hover:opacity-100 transition-opacity"></i>
+                    </div>
+                    <div class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black to-transparent p-8">
+                        <h3 class="text-white text-2xl font-bold">Hasiru Mitra AI Demo</h3>
+                        <p class="text-green-200 mt-2">Watch how farmers are using our AI assistant</p>
+                    </div>
+                </div>
+            </div>
         </div>
-        <div class="glass p-6 rounded-xl text-center">
-          <div class="text-sm text-white/70">Carbon prevented (kg)</div>
-          <div id="counterCarbon" class="text-3xl font-bold text-lime">0</div>
-        </div>
-        <div class="glass p-6 rounded-xl text-center">
-          <div class="text-sm text-white/70">Export QRs minted</div>
-          <div id="counterQRs" class="text-3xl font-bold text-lime">0</div>
-        </div>
-      </div>
     </section>
 
-    <!-- SECTION 5: MY FARM HEALTH -->
-    <section class="w-full py-10 px-6">
-      <div class="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-6 items-center">
-        <div class="flex flex-col items-center">
-          <div id="soilRing" class="ring-traffic glass-strong p-6 flex items-center justify-center">
-            <!-- Canvas ring drawn by JS -->
-            <canvas id="soilCanvas" width="220" height="220" aria-label="Soil health" role="img"></canvas>
-          </div>
-          <div class="mt-4 text-center">
-            <div id="nextSpray" class="text-sm text-white/70">Next spray: —</div>
-            <button id="bookVan" class="mt-3 glass-btn rounded-md font-semibold">Book Soil Van</button>
-          </div>
+    <!-- Technology Section -->
+    <section id="technology" class="py-16 bg-white">
+        <div class="container mx-auto px-4">
+            <div class="text-center mb-16">
+                <h2 class="section-title text-3xl md:text-4xl font-bold text-green-800">Cutting-Edge Technology</h2>
+                <p class="text-xl text-gray-600 max-w-3xl mx-auto mt-4">Built on the latest AI and blockchain technologies for unparalleled accuracy</p>
+            </div>
+            <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+                <div class="tech-card bg-white p-6 rounded-2xl shadow-sm hover:shadow-md">
+                    <div class="tech-icon">
+                        <i class="fas fa-microphone"></i>
+                    </div>
+                    <h3 class="text-lg font-bold text-green-800 mb-3">Speech</h3>
+                    <p class="text-gray-600 text-sm mb-2">Bhashini + Whisper fine-tuned</p>
+                    <p class="text-green-600 font-bold">93% rural Kannada accuracy</p>
+                </div>
+                <div class="tech-card bg-white p-6 rounded-2xl shadow-sm hover:shadow-md">
+                    <div class="tech-icon">
+                        <i class="fas fa-eye"></i>
+                    </div>
+                    <h3 class="text-lg font-bold text-green-800 mb-3">Vision</h3>
+                    <p class="text-gray-600 text-sm mb-2">ViT-B/16 + custom weed dataset</p>
+                    <p class="text-green-600 font-bold">97% F1 on 27 organic crops</p>
+                </div>
+                <div class="tech-card bg-white p-6 rounded-2xl shadow-sm hover:shadow-md">
+                    <div class="tech-icon">
+                        <i class="fas fa-cogs"></i>
+                    </div>
+                    <h3 class="text-lg font-bold text-green-800 mb-3">Agent</h3>
+                    <p class="text-gray-600 text-sm mb-2">LangChain + 12 certified-tool APIs</p>
+                    <p class="text-green-600 font-bold">Soil-test booking, drone imagery, blockchain QR</p>
+                </div>
+                <div class="tech-card bg-white p-6 rounded-2xl shadow-sm hover:shadow-md">
+                    <div class="tech-icon">
+                        <i class="fas fa-lock"></i>
+                    </div>
+                    <h3 class="text-lg font-bold text-green-800 mb-3">Security</h3>
+                    <p class="text-gray-600 text-sm mb-2">Zero-knowledge proofs on Polygon</p>
+                    <p class="text-green-600 font-bold">Tamper-proof organic journey</p>
+                </div>
+            </div>
         </div>
-        <div>
-          <h4 class="font-semibold">Farm summary</h4>
-          <p class="text-sm text-white/70 mt-2">Geo-located soil analysis and recommendations. Connect your plot or allow GPS for precise prediction.</p>
-        </div>
-      </div>
     </section>
 
-    <!-- SECTION 6: TESTIMONIALS -->
-    <section class="w-full py-10 px-6">
-      <div class="max-w-6xl mx-auto">
-        <h4 class="font-semibold mb-4">Testimonials</h4>
-        <div id="reels" class="flex gap-4 overflow-x-auto py-4" style="scroll-snap-type:x mandatory;">
-          <!-- sample reels (vertical videos) -->
-          <div class="min-w-[260px] h-420 glass rounded-xl p-3 flex-shrink-0" style="scroll-snap-align:center;">
-            <div class="h-64 bg-neutral-900 rounded-lg"></div>
-            <div class="mt-3 text-sm">Ravi, Karnataka • 60s</div>
-          </div>
-          <div class="min-w-[260px] h-420 glass rounded-xl p-3 flex-shrink-0">
-            <div class="h-64 bg-neutral-900 rounded-lg"></div>
-            <div class="mt-3 text-sm">Sangeeta, Maharashtra • 45s</div>
-          </div>
-          <div class="min-w-[260px] h-420 glass rounded-xl p-3 flex-shrink-0">
-            <div class="h-64 bg-neutral-900 rounded-lg"></div>
-            <div class="mt-3 text-sm">Anil, Tamil Nadu • 30s</div>
-          </div>
+    <!-- Roadmap Section -->
+    <section id="roadmap" class="py-16 bg-gray-50">
+        <div class="container mx-auto px-4">
+            <div class="text-center mb-16">
+                <h2 class="section-title text-3xl md:text-4xl font-bold text-green-800">Our Roadmap</h2>
+                <p class="text-xl text-gray-700 max-w-3xl mx-auto mt-4">Building the future of organic farming, one milestone at a time</p>
+            </div>
+            <div class="max-w-4xl mx-auto roadmap-timeline">
+                <div class="roadmap-point">
+                    <div class="roadmap-card bg-white p-6 rounded-2xl shadow-sm">
+                        <div class="timeline-marker"></div>
+                        <div class="flex justify-between items-start mb-3">
+                            <h3 class="text-xl font-bold text-green-800">Beta Launch</h3>
+                            <span class="bg-green-100 text-green-800 px-3 py-1 rounded-full text-sm font-bold">Q3 2025 Current</span>
+                        </div>
+                        <p class="text-gray-600">Beta with 3 Karnataka FPOs (Mandya, Hassan, Chikkaballapur)</p>
+                    </div>
+                </div>
+                <div class="roadmap-point">
+                    <div class="roadmap-card bg-white p-6 rounded-2xl shadow-sm">
+                        <div class="timeline-marker"></div>
+                        <div class="flex justify-between items-start mb-3">
+                            <h3 class="text-xl font-bold text-green-800">Language Expansion</h3>
+                            <span class="bg-green-100 text-green-800 px-3 py-1 rounded-full text-sm font-bold">Q4 2025</span>
+                        </div>
+                        <p class="text-gray-600">Multilingual TTS upgrade (Tulu, Kodava)</p>
+                    </div>
+                </div>
+                <div class="roadmap-point">
+                    <div class="roadmap-card bg-white p-6 rounded-2xl shadow-sm">
+                        <div class="timeline-marker"></div>
+                        <div class="flex justify-between items-start mb-3">
+                            <h3 class="text-xl font-bold text-green-800">Pan-India Launch</h3>
+                            <span class="bg-green-100 text-green-800 px-3 py-1 rounded-full text-sm font-bold">Q1 2026</span>
+                        </div>
+                        <p class="text-gray-600">Nationwide rollout, 20k farmers onboarded</p>
+                    </div>
+                </div>
+                <div class="roadmap-point">
+                    <div class="roadmap-card bg-white p-6 rounded-2xl shadow-sm">
+                        <div class="timeline-marker"></div>
+                        <div class="flex justify-between items-start mb-3">
+                            <h3 class="text-xl font-bold text-green-800">Export Integration</h3>
+                            <span class="bg-green-100 text-green-800 px-3 py-1 rounded-full text-sm font-bold">Q2 2026</span>
+                        </div>
+                        <p class="text-gray-600">Export-grade residue sentinel for EU/US buyers</p>
+                    </div>
+                </div>
+            </div>
         </div>
-      </div>
     </section>
 
-    <!-- SECTION 7: WAITLIST & CTA -->
-    <section class="w-full py-12 px-6">
-      <div class="max-w-3xl mx-auto glass p-6 rounded-xl text-center">
-        <h4 class="font-semibold">Join the Beta</h4>
-        <p class="text-sm text-white/70 mt-1">Enter your email to secure a spot in the 500-slot waitlist.</p>
-        <div class="mt-4 flex flex-col md:flex-row gap-3 items-center justify-center">
-          <input id="emailInput" type="email" placeholder="you@farmmail.example" class="w-full md:w-72 glass p-3 rounded-md text-black" aria-label="Email" />
-          <button id="joinBtn" class="glass-btn rounded-md px-5 py-3 font-semibold">Join Beta</button>
+    <!-- Testimonials Section -->
+    <section id="testimonials" class="py-16 bg-white">
+        <div class="container mx-auto px-4">
+            <div class="text-center mb-16">
+                <h2 class="section-title text-3xl md:text-4xl font-bold text-green-800">Early Interest</h2>
+                <p class="text-xl text-gray-700 max-w-3xl mx-auto mt-4">Farmers are already excited about what's coming</p>
+            </div>
+            <div class="grid md:grid-cols-3 gap-8">
+                <div class="testimonial-card bg-green-50 p-6 rounded-2xl shadow-sm">
+                    <div class="flex items-center mb-5">
+                        <div class="testimonial-icon mr-4">
+                            <i class="fas fa-smile-beam"></i>
+                        </div>
+                        <span class="font-bold text-green-800">excited</span>
+                    </div>
+                    <blockquote class="text-gray-700 italic mb-6">
+                        "Finally, someone is building AI for us farmers! Can't wait to try speaking to my phone in Kannada and getting real organic advice."
+                    </blockquote>
+                    <div class="flex items-center">
+                        <div class="h-14 w-14 rounded-full bg-gray-200 mr-4"></div>
+                        <div>
+                            <p class="font-bold text-gray-800">Lakshmamma</p>
+                            <p class="text-sm text-gray-600">Organic Tomato Farmer, Mandya</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="testimonial-card bg-green-50 p-6 rounded-2xl shadow-sm">
+                    <div class="flex items-center mb-5">
+                        <div class="testimonial-icon mr-4">
+                            <i class="fas fa-hands-helping"></i>
+                        </div>
+                        <span class="font-bold text-green-800">hopeful</span>
+                    </div>
+                    <blockquote class="text-gray-700 italic mb-6">
+                        "This could change everything! No more waiting for agriculture officer visits. Hope it really understands our local problems."
+                    </blockquote>
+                    <div class="flex items-center">
+                        <div class="h-14 w-14 rounded-full bg-gray-200 mr-4"></div>
+                        <div>
+                            <p class="font-bold text-gray-800">Ramesh</p>
+                            <p class="text-sm text-gray-600">FPO Secretary, Hassan</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="testimonial-card bg-green-50 p-6 rounded-2xl shadow-sm">
+                    <div class="flex items-center mb-5">
+                        <div class="testimonial-icon mr-4">
+                            <i class="fas fa-lightbulb"></i>
+                        </div>
+                        <span class="font-bold text-green-800">curious</span>
+                    </div>
+                    <blockquote class="text-gray-700 italic mb-6">
+                        "I've been organic for 10 years, but certification is still complex. If this AI can help with that journey, count me in!"
+                    </blockquote>
+                    <div class="flex items-center">
+                        <div class="h-14 w-14 rounded-full bg-gray-200 mr-4"></div>
+                        <div>
+                            <p class="font-bold text-gray-800">Manjunatha</p>
+                            <p class="text-sm text-gray-600">Organic Rice Farmer, Chikkaballapur</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
-        <div class="mt-4 text-sm">Slots left: <span id="slotsLeft" class="text-lime font-semibold">500</span></div>
-        <div class="mt-6">
-          <button id="downloadQR" class="glass-btn rounded-md px-4 py-2">Download QR (PNG)</button>
-        </div>
-      </div>
     </section>
 
-    <!-- SECTION 8: FOOTER -->
-    <footer class="w-full py-6 px-6 mt-auto">
-      <div class="max-w-6xl mx-auto flex items-center justify-between">
-        <div class="flex items-center gap-3">
-          <div class="w-10 h-10 rounded-md glass flex items-center justify-center">🌿</div>
-          <div class="text-sm text-white/80">Built by AgriGenius Solutions</div>
+    <!-- CTA Section -->
+    <section class="cta-section text-white">
+        <div class="container mx-auto px-4 py-16 text-center">
+            <h2 class="text-3xl md:text-4xl font-bold mb-6">Ready to Experience Organic Farming with AI?</h2>
+            <p class="text-xl mb-10 max-w-3xl mx-auto">Join the revolution in sustainable agriculture with Hasiru Mitra AI</p>
+            <div class="flex flex-wrap justify-center gap-4">
+                <button class="bg-white text-green-700 hover:bg-gray-100 px-8 py-4 rounded-full font-bold shadow-lg transition-all">
+                    Get Early Access
+                </button>
+                <button class="border-2 border-white text-white hover:bg-green-800 px-8 py-4 rounded-full font-bold transition-all">
+                    Contact Our Team
+                </button>
+            </div>
         </div>
-        <div class="flex items-center gap-4">
-          <a href="#" class="text-white/70 hover:text-lime" aria-label="LinkedIn">in</a>
-          <a href="#" class="text-white/70 hover:text-lime" aria-label="Instagram">ig</a>
-          <a href="#" class="text-white/70 hover:text-lime" aria-label="Twitter">tw</a>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-gray-900 text-white py-12">
+        <div class="container mx-auto px-4">
+            <div class="grid md:grid-cols-4 gap-8 mb-8">
+                <div>
+                    <div class="flex items-center space-x-3 mb-6">
+                        <div class="bg-green-600 p-2 rounded-lg">
+                            <i class="fas fa-leaf text-white text-xl"></i>
+                        </div>
+                        <span class="text-xl font-bold">Hasiru Mitra AI</span>
+                    </div>
+                    <p class="text-gray-400 mb-4">"Your Green Friend – Organic AI, Pure by Design"</p>
+                    <div class="flex space-x-4 mt-6">
+                        <a href="#" class="text-gray-400 hover:text-white transition-colors">
+                            <i class="fab fa-facebook-f text-xl"></i>
+                        </a>
+                        <a href="#" class="text-gray-400 hover:text-white transition-colors">
+                            <i class="fab fa-twitter text-xl"></i>
+                        </a>
+                        <a href="#" class="text-gray-400 hover:text-white transition-colors">
+                            <i class="fab fa-linkedin-in text-xl"></i>
+                        </a>
+                        <a href="#" class="text-gray-400 hover:text-white transition-colors">
+                            <i class="fab fa-instagram text-xl"></i>
+                        </a>
+                    </div>
+                </div>
+                <div>
+                    <h3 class="text-lg font-bold mb-6">Quick Links</h3>
+                    <ul class="space-y-3">
+                        <li><a href="#" class="text-gray-400 hover:text-white footer-link transition-all">Home</a></li>
+                        <li><a href="#features" class="text-gray-400 hover:text-white footer-link transition-all">Features</a></li>
+                        <li><a href="#technology" class="text-gray-400 hover:text-white footer-link transition-all">Technology</a></li>
+                        <li><a href="#roadmap" class="text-gray-400 hover:text-white footer-link transition-all">Roadmap</a></li>
+                        <li><a href="#testimonials" class="text-gray-400 hover:text-white footer-link transition-all">Testimonials</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h3 class="text-lg font-bold mb-6">Languages</h3>
+                    <ul class="space-y-3">
+                        <li><a href="#" class="text-gray-400 hover:text-white footer-link transition-all">Kannada</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white footer-link transition-all">Hindi</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white footer-link transition-all">English</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h3 class="text-lg font-bold mb-6">Contact</h3>
+                    <p class="text-gray-400 mb-3">Developed by AgriGenius Solutions</p>
+                    <p class="text-gray-400 mb-3">Bangalore, India</p>
+                    <p class="text-gray-400 mb-3">contact@hasirumitra.ai</p>
+                    <p class="text-gray-400">+91 98765 43210</p>
+                </div>
+            </div>
+            <div class="border-t border-gray-800 pt-8 text-center text-gray-500">
+                <p>&copy; 2025 Hasiru Mitra AI. All rights reserved.</p>
+            </div>
         </div>
-      </div>
     </footer>
 
-    <!-- Sticky mic for mobile -->
-    <button id="stickyMic" class="fixed bottom-6 right-6 md:hidden w-14 h-14 rounded-full glass flex items-center justify-center shadow-lg" aria-label="Voice input" style="border:1px solid rgba(163,230,53,0.08);">
-      🎤
-    </button>
-  </div>
+    <script>
+        // Language tabs functionality
+        const languageTabs = document.querySelectorAll('.language-tab');
+        languageTabs.forEach(tab => {
+            tab.addEventListener('click', () => {
+                languageTabs.forEach(t => t.classList.remove('active'));
+                tab.classList.add('active');
+            });
+        });
 
-  <!-- Minimal JS to power counters, countdown, soil ring, QR, micro-animations -->
-  <script>
-    // Slot counter (500 initial)
-    let slots = 500;
-    const slotCountEl = document.getElementById('slotCount');
-    const slotsLeftEl = document.getElementById('slotsLeft');
-    function updateSlots(n){ slots = Math.max(0, slots - n); slotCountEl.textContent = slots; slotsLeftEl.textContent = slots; }
-    document.getElementById('joinBtn').addEventListener('click', ()=>{ const email = document.getElementById('emailInput').value; if(!email) return alert('Add email'); updateSlots(1); alert('Thanks — you are on the list.'); });
+        // Mobile menu toggle
+        const mobileMenuButton = document.getElementById('mobile-menu-button');
+        const mobileMenu = document.getElementById('mobile-menu');
+        
+        mobileMenuButton.addEventListener('click', () => {
+            mobileMenu.classList.toggle('active');
+        });
 
-    // Magic countdown & prescription reveal
-    let countdown = 8; const countdownEl = document.getElementById('countdown'); const magicArea = document.getElementById('magicArea');
-    function runMagic(){
-      countdown = 8; countdownEl.textContent = countdown; magicArea.textContent = 'Analysing...';
-      const timer = setInterval(()=>{
-        countdown--; countdownEl.textContent = countdown;
-        if(countdown<=0){ clearInterval(timer); countdownEl.textContent = '—'; magicArea.innerHTML = '<span class="text-lime">15 ml neem + 10 L water + soil-test booked</span>'; }
-      }, 1000);
-    }
-    // auto-play once when visible
-    let magicPlayed=false;
-    const magicObserver = new IntersectionObserver(entries=>{ if(entries[0].isIntersecting && !magicPlayed){ runMagic(); magicPlayed=true; } });
-    magicObserver.observe(document.getElementById('magicArea'));
+        // Close mobile menu when clicking outside
+        document.addEventListener('click', (event) => {
+            if (!mobileMenuButton.contains(event.target) && !mobileMenu.contains(event.target)) {
+                mobileMenu.classList.remove('active');
+            }
+        });
 
-    // Impact counters (auto-updates every 5s)
-    const counterRecipes = document.getElementById('counterRecipes');
-    const counterCarbon = document.getElementById('counterCarbon');
-    const counterQRs = document.getElementById('counterQRs');
-    function randomIncrement(el, min, max){ const delta = Math.floor(Math.random()*(max-min+1))+min; el.textContent = Number(el.textContent.replace(/,/g,'')) + delta; }
-    setInterval(()=>{ randomIncrement(counterRecipes, 1,5); randomIncrement(counterCarbon, 0,3); randomIncrement(counterQRs, 0,2); }, 5000);
-
-    // Soil health ring (canvas draw)
-    const soilCanvas = document.getElementById('soilCanvas'); const ctx = soilCanvas.getContext('2d');
-    function drawSoilRing(score){ // score 0-100
-      const w = soilCanvas.width; const h = soilCanvas.height; ctx.clearRect(0,0,w,h);
-      const cx = w/2; const cy = h/2; const radius = 86; const thickness = 18;
-      // background ring
-      ctx.lineWidth = thickness; ctx.lineCap = 'round'; ctx.beginPath(); ctx.strokeStyle = 'rgba(255,255,255,0.06)'; ctx.arc(cx,cy,radius,0,Math.PI*2); ctx.stroke();
-      // traffic gradient
-      const end = (Math.PI*2) * (score/100) - Math.PI/2;
-      // color based on score
-      let col;
-      if(score<40) col = '#ff704d'; else if(score<70) col = '#ffb86b'; else col = '#7ee787';
-      ctx.beginPath(); ctx.strokeStyle = col; ctx.arc(cx,cy,radius,-Math.PI/2,end); ctx.stroke();
-      // center text
-      ctx.font = '20px Inter'; ctx.fillStyle = '#fff'; ctx.textAlign='center'; ctx.textBaseline='middle'; ctx.fillText(score + '%', cx, cy);
-    }
-    // simulate geo-located soil health
-    let soilScore = 68; drawSoilRing(soilScore); document.getElementById('nextSpray').textContent = 'Next spray: Sep 02, 2025';
-
-    // ONDC ticker simulation (replace with real API integration)
-    const ondcTicker = document.getElementById('ondcTicker'); setInterval(()=>{ const price = (Math.random()*80 + 120).toFixed(2); ondcTicker.textContent = '₹ ' + price; }, 4000);
-
-    // QR download (uses simple dataURL of canvas)
-    document.getElementById('downloadQR').addEventListener('click', ()=>{
-      // generate a simple QR-like canvas (placeholder) and download as PNG
-      const c = document.createElement('canvas'); c.width = 400; c.height = 400; const g = c.getContext('2d'); g.fillStyle='#fff'; g.fillRect(0,0,400,400); g.fillStyle='#000'; g.fillRect(40,40,320,320); const url = c.toDataURL('image/png'); const a = document.createElement('a'); a.href=url; a.download='hasirumitra-qr.png'; a.click(); // confetti
-      burstConfetti();
-    });
-
-    // simple lime confetti
-    function burstConfetti(){ const count = 30; for(let i=0;i<count;i++){ const dot = document.createElement('div'); dot.style.position='fixed'; dot.style.width='8px'; dot.style.height='8px'; dot.style.borderRadius='50%'; dot.style.background='var(--lime)'; dot.style.left=(window.innerWidth/2 + (Math.random()-0.5)*200)+'px'; dot.style.top=(window.innerHeight/2 + (Math.random()-0.5)*200)+'px'; dot.style.opacity='0.9'; dot.style.transform='translateY(0)'; dot.style.transition='transform 800ms cubic-bezier(.2,.8,.2,1), opacity 1000ms'; document.body.appendChild(dot); setTimeout(()=>{ dot.style.transform='translateY(300px) rotate(200deg)'; dot.style.opacity='0'; },10); setTimeout(()=>{ dot.remove(); },1200); }
-    }
-
-    // autoplay video once when visible
-    const vid = document.getElementById('chilliMacro');
-    if(vid){
-      const vObserver = new IntersectionObserver(entries=>{ if(entries[0].isIntersecting){ vid.play().catch(()=>{}); vObserver.disconnect(); }} , {threshold:0.6});
-      vObserver.observe(vid);
-    }
-
-    // basic scroll-based parallax for leaf
-    window.addEventListener('scroll', ()=>{
-      const header = document.querySelector('header'); const rect = header.getBoundingClientRect(); const pct = Math.min(1, Math.max(0, 1 - (window.scrollY / (window.innerHeight*0.8)))); const leaf = document.querySelector('.leaf-3d'); if(leaf) leaf.style.transform = `rotateY(${(1-pct)*360}deg) translateZ(${20*pct}px)`; });
-
-    // mic pulse when active (placeholder toggle)
-    const stickyMic = document.getElementById('stickyMic'); let micOn=false; stickyMic.addEventListener('click', ()=>{ micOn = !micOn; if(micOn){ stickyMic.animate([{boxShadow:'0 0 0 0 rgba(163,230,53,0.2)'},{boxShadow:'0 0 18px 6px rgba(163,230,53,0.12)'}], {duration:700, iterations:Infinity}); }else{ stickyMic.getAnimations().forEach(a=>a.cancel()); }});
-
-    // basic accessibility: keyboard nav for cards
-    document.querySelectorAll('[role="article"]').forEach(el=>{ el.tabIndex=0; });
-
-    // reduce motion preference
-    if(window.matchMedia('(prefers-reduced-motion: reduce)').matches){ document.querySelectorAll('.rotate-slow').forEach(n=>n.style.animation='none'); }
-
-    // Performance note: remove heavy things when integrating for real. Replace placeholders with CDN-hosted media and edge endpoints.
-  </script>
+        // Smooth scrolling for anchor links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function(e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    window.scrollTo({
+                        top: target.offsetTop - 80,
+                        behavior: 'smooth'
+                    });
+                    // Close mobile menu if open
+                    mobileMenu.classList.remove('active');
+                }
+            });
+        });
+    </script>
 </body>
 </html>
